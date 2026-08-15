@@ -168,7 +168,6 @@ input:focus, select:focus { outline: 3px solid var(--lime); border-color: var(--
 .auth-form { margin-top: 34px; display: grid; gap: 18px; }
 .auth-form .button { margin-top: 8px; }
 .oauth-button { width: 100%; display: flex; align-items: center; justify-content: center; gap: 13px; background: white; cursor: pointer; }
-.apple-button { background: var(--ink); color: white; }
 .oauth-mark { width: 24px; font-size: 18px; line-height: 1; }
 .google-mark { color: #4285f4; font-weight: 900; }
 .auth-fineprint { margin: 4px 0 0; color: rgba(23,27,22,.58); font-size: 12px; line-height: 1.5; }

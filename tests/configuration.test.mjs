@@ -19,7 +19,7 @@ test("social auth replaces passwords", async () => {
   ]);
   assert.match(authForm, /provider: Provider/);
   assert.match(authForm, /"google"/);
-  assert.match(authForm, /"apple"/);
+  assert.doesNotMatch(authForm, /"apple"/);
   assert.doesNotMatch(registerRoute, /createUser|password/);
   assert.match(registerRoute, /auth\.getUser\(\)/);
 });

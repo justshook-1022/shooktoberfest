@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { getBrowserClient } from "../../lib/supabase/client";
 
-type Provider = "google" | "apple";
+type Provider = "google";
 
 export default function AuthForm({ next = "/me" }: { next?: string }) {
   const [message, setMessage] = useState("");
@@ -31,10 +31,6 @@ export default function AuthForm({ next = "/me" }: { next?: string }) {
       <button className="button oauth-button" type="button" onClick={() => void signIn("google")} disabled={busy !== null}>
         <span className="oauth-mark google-mark" aria-hidden="true">G</span>
         {busy === "google" ? "Opening Google…" : "Continue with Google"}
-      </button>
-      <button className="button oauth-button apple-button" type="button" onClick={() => void signIn("apple")} disabled={busy !== null}>
-        <span className="oauth-mark" aria-hidden="true">●</span>
-        {busy === "apple" ? "Opening Apple…" : "Continue with Apple"}
       </button>
       {message ? <p className="form-message" role="status">{message}</p> : null}
       <p className="auth-fineprint">We use your account only to secure your registration, profile, and scorecard.</p>

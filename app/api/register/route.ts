@@ -19,7 +19,7 @@ export async function POST(request: Request) {
 
   const supabase = await getServerClient();
   const { data: auth } = supabase ? await supabase.auth.getUser() : { data: { user: null } };
-  if (!auth.user?.email) return NextResponse.json({ error: "Sign in with Google or Apple before registering." }, { status: 401 });
+  if (!auth.user?.email) return NextResponse.json({ error: "Sign in with Google before registering." }, { status: 401 });
 
   const admin = getAdminClient();
   const stripe = getStripeClient();
