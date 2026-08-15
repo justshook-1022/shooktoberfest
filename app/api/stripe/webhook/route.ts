@@ -113,7 +113,12 @@ async function markPaid(admin: AdminClient, session: Stripe.Checkout.Session) {
 async function releasePendingRegistration(admin: AdminClient, session: Stripe.Checkout.Session) {
   const playerId = getPlayerId(session);
   if (!playerId) return;
-  const { error } = await admin.from("players").delete().eq("id", playerId).eq("payment_status", "pending");
+  const { error } = await admin
+    .from("players")
+    .update({ payment_status: "unpaid" })
+    .eq("id", playerId)
+    .eq("stripe_session_id", session.id)
+    .eq("payment_status", "pending");
   if (error) throw error;
 }
 

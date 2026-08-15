@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getAdminClient } from "../../../lib/supabase/admin";
 import { getServerClient } from "../../../lib/supabase/server";
 import { getStripeClient } from "../../../lib/stripe";
+import { createRegistrationCheckout } from "../../../lib/registration-checkout";
 
 const validSizes = new Set(["S", "M", "L", "XL", "2XL", "3XL"]);
 
@@ -58,21 +59,14 @@ export async function POST(request: Request) {
 
   try {
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || new URL(request.url).origin;
-    const session = await stripe.checkout.sessions.create({
-      mode: "payment",
-      submit_type: "book",
-      line_items: [{ price: priceId, quantity: 1 }],
-      customer_email: email,
-      client_reference_id: inserted.id,
-      integration_identifier: "shooktoberfest-signup-kbqzmtxr",
-      metadata: { player_id: inserted.id, auth_user_id: auth.user.id },
-      payment_intent_data: {
-        metadata: { player_id: inserted.id, auth_user_id: auth.user.id, event: "shooktoberfest_2026" },
-      },
-      expires_at: Math.floor(Date.now() / 1000) + 30 * 60,
-      success_url: `${siteUrl}/register/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${siteUrl}/register?canceled=1`,
-    }, { idempotencyKey: `shooktoberfest-checkout-${inserted.id}` });
+    const session = await createRegistrationCheckout({
+      stripe,
+      priceId,
+      siteUrl,
+      player: { id: inserted.id, auth_user_id: auth.user.id, email },
+      cancelPath: "/me",
+      idempotencyKey: `shooktoberfest-checkout-${inserted.id}`,
+    });
     const { error: sessionUpdateError } = await admin.from("players").update({ stripe_session_id: session.id }).eq("id", inserted.id);
     if (sessionUpdateError) {
       await stripe.checkout.sessions.expire(session.id);

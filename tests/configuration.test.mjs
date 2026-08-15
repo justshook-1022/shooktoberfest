@@ -42,20 +42,39 @@ test("ships database security corrections", async () => {
 });
 
 test("Stripe Checkout and webhooks are retry-safe", async () => {
-  const [registerRoute, webhookRoute, stripeClient] = await Promise.all([
+  const [registerRoute, resumeRoute, webhookRoute, stripeClient, checkoutHelper] = await Promise.all([
     read("app/api/register/route.ts"),
+    read("app/api/register/checkout/route.ts"),
     read("app/api/stripe/webhook/route.ts"),
     read("lib/stripe.ts"),
+    read("lib/registration-checkout.ts"),
   ]);
-  assert.match(registerRoute, /integration_identifier/);
+  assert.match(registerRoute, /createRegistrationCheckout/);
+  assert.match(checkoutHelper, /integration_identifier/);
   assert.match(registerRoute, /idempotencyKey/);
-  assert.match(registerRoute, /payment_intent_data/);
-  assert.doesNotMatch(registerRoute, /payment_method_types/);
+  assert.match(checkoutHelper, /payment_intent_data/);
+  assert.doesNotMatch(checkoutHelper, /payment_method_types/);
+  assert.match(resumeRoute, /checkout\.sessions\.retrieve/);
+  assert.match(resumeRoute, /shooktoberfest-resume/);
   assert.match(webhookRoute, /constructEventAsync/);
   assert.match(webhookRoute, /checkout\.session\.async_payment_succeeded/);
   assert.match(webhookRoute, /charge\.refunded/);
   assert.match(webhookRoute, /stripe_webhook_events/);
+  assert.match(webhookRoute, /payment_status: "unpaid"/);
+  assert.match(webhookRoute, /eq\("stripe_session_id", session\.id\)/);
   assert.match(stripeClient, /new Stripe\(apiKey\)/);
+});
+
+test("pending players can resume payment from their profile", async () => {
+  const [profile, button, migration] = await Promise.all([
+    read("app/me/page.tsx"),
+    read("app/me/ResumePaymentButton.tsx"),
+    read("supabase/migrations/20260815223151_resumable_checkout.sql"),
+  ]);
+  assert.match(profile, /Complete your payment/);
+  assert.match(profile, /Admin dashboard/);
+  assert.match(button, /\/api\/register\/checkout/);
+  assert.match(migration, /before insert or update of event_id, payment_status/);
 });
 
 test("the custom route totals are unchanged", async () => {

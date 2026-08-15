@@ -2,12 +2,17 @@ import { PageIntro, SiteHeader } from "../../components/SiteHeader";
 import { getServerClient } from "../../lib/supabase/server";
 import AuthForm from "../login/AuthForm";
 import RegisterForm from "./RegisterForm";
+import { redirect } from "next/navigation";
 
 export const dynamic = "force-dynamic";
 
 export default async function RegisterPage() {
   const supabase = await getServerClient();
   const { data } = supabase ? await supabase.auth.getUser() : { data: { user: null } };
+  if (data.user && supabase) {
+    const { data: player } = await supabase.from("players").select("id").eq("auth_user_id", data.user.id).maybeSingle();
+    if (player) redirect("/me");
+  }
   return (
     <main>
       <SiteHeader />
