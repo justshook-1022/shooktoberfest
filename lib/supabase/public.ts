@@ -24,16 +24,25 @@ export async function getEventSnapshot() {
 export async function getTeeSheet() {
   const client = getPublicClient();
   if (!client) return null;
-  const { data } = await client.from("roster").select("first_name,last_name,team_name,tee_time,starting_hole").not("tee_time", "is", null).order("tee_time");
+  const { data } = await client.from("roster").select("player_id,first_name,last_name,team_id,team_name,tee_time,starting_hole").not("tee_time", "is", null).order("tee_time");
   if (!data?.length) return null;
   const groups = new Map<string, typeof data>();
   for (const player of data) {
     const key = player.tee_time as string;
     groups.set(key, [...(groups.get(key) || []), player]);
   }
-  return Array.from(groups.entries()).map(([teeTime, players]) => ({
-    time: new Intl.DateTimeFormat("en-US", { hour: "numeric", minute: "2-digit", timeZone: "America/Chicago" }).format(new Date(teeTime)),
-    teams: Array.from(new Set(players.map(player => player.team_name || "Team pending"))),
-    players: players.map(player => `${player.first_name} ${player.last_name}`),
-  }));
+  return Array.from(groups.entries()).map(([teeTime, players]) => {
+    const teams = new Map<string, { id: string; name: string; players: string[] }>();
+    for (const player of players) {
+      // Query order within a tee time does not define team membership.
+      const id = player.team_id || `unassigned-${player.player_id}`;
+      const team = teams.get(id) || { id, name: player.team_name || "Team pending", players: [] as string[] };
+      team.players.push(`${player.first_name} ${player.last_name}`);
+      teams.set(id, team);
+    }
+    return {
+      time: new Intl.DateTimeFormat("en-US", { hour: "numeric", minute: "2-digit", timeZone: "America/Chicago" }).format(new Date(teeTime)),
+      teams: Array.from(teams.values()),
+    };
+  });
 }
