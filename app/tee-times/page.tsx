@@ -6,7 +6,14 @@ export const dynamic = "force-dynamic";
 
 export default async function TeeTimesPage() {
   const liveSheet = await getTeeSheet();
-  const teeTimes = liveSheet || demoTeeTimes;
+  const teeTimes = liveSheet || demoTeeTimes.map(group => ({
+    time: group.time,
+    teams: group.teams.map((name, index) => ({
+      id: `${group.time}-${index}`,
+      name,
+      players: group.players.slice(index * 2, index * 2 + 2),
+    })),
+  }));
   return (
     <main>
       <SiteHeader active="/tee-times" />
@@ -17,7 +24,7 @@ export default async function TeeTimesPage() {
             <article className="tee-group" key={group.time}>
               <div className="tee-time"><small>GROUP {index + 1}</small><strong>{group.time}</strong></div>
               <div className="tee-teams">
-                {group.teams.map((team, teamIndex) => <div key={`${team}-${teamIndex}`}><strong>{team}</strong><span>{group.players.slice(teamIndex * 2, teamIndex * 2 + 2).join(" · ")}</span></div>)}
+                {group.teams.map(team => <div key={team.id}><strong>{team.name}</strong><span>{team.players.join(" · ")}</span></div>)}
               </div>
               <span className="starting-hole">#1</span>
             </article>
