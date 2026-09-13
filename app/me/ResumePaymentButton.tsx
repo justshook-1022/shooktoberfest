@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { event } from "../../lib/event";
 
 export default function ResumePaymentButton() {
   const [loading, setLoading] = useState(false);
@@ -26,7 +27,7 @@ export default function ResumePaymentButton() {
   return (
     <>
       <button className="button button-primary" type="button" onClick={resumePayment} disabled={loading}>
-        {loading ? "Opening checkout…" : "Complete payment · $200"}
+        {loading ? "Opening checkout…" : `Complete payment · $${event.entry}`}
       </button>
       {error ? <p className="form-error" role="alert">{error}</p> : null}
     </>

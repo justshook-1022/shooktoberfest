@@ -1,0 +1,16 @@
+.roundHeader { display: flex; gap: 16px; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+.standing { display: flex; justify-content: space-between; gap: 12px; margin: 18px 0; padding: 18px 0; border-block: 1px solid #d4dbcf; font-size: 11px; }
+.standing b { display: block; font-size: 24px; margin-top: 8px; }
+.label { text-align: center; font-weight: 700; margin: 20px 0 0; }
+.net { text-align: center; margin: -12px 0 24px; color: #f4df54; }
+.net span { display: block; font-size: 20px; }
+.net strong { font-size: 32px; margin-left: 8px; }
+.net small { display: block; margin-top: 8px; }
+.putts { margin: 14px 0; }
+.putts output { font-size: 48px; }
+.putts button { width: 56px; height: 56px; }
+.notice { color: #123526; padding: 18px; background: #f3f3e8; line-height: 1.6; }
+.message, .saveHint { text-align: center; font-size: 13px; line-height: 1.5; min-height: 20px; }
+.saveHint { font-weight: 700; }
+
+.notice h1 { color: inherit; }

@@ -1,0 +1,13 @@
+{
+  "name": "Shooktoberfest",
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:22-bookworm",
+  "remoteUser": "node",
+  "postCreateCommand": "npm ci",
+  "forwardPorts": [3000],
+  "portsAttributes": {
+    "3000": {
+      "label": "Shooktoberfest website",
+      "onAutoForward": "notify"
+    }
+  }
+}

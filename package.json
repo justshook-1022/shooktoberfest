@@ -7,11 +7,18 @@
   },
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "npm run design:check && next build --webpack",
     "start": "next start",
-    "test": "node --test tests/configuration.test.mjs",
+    "design:check": "node scripts/check-design-lock.mjs",
+    "deployment:check": "node scripts/check-deployment-design.mjs",
+    "deploy:preview": "npm run design:check && vercel --force",
+    "test": "node --test tests/*.test.mjs",
+    "test:db": "supabase test db",
+    "test:admin-db": "node --env-file=.env.local scripts/test-admin-database.mjs",
     "lint": "eslint . --ignore-pattern .next",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test:scoring": "node --env-file=.env.local scripts/test-live-scoring.mjs",
+    "test:reset": "node --env-file=.env.local scripts/test-score-reset.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.7.0",
@@ -24,6 +31,7 @@
   "devDependencies": {
     "@eslint/js": "9.39.4",
     "@next/eslint-plugin-next": "16.2.6",
+    "@playwright/test": "1.63.0",
     "@tailwindcss/postcss": "4.2.1",
     "@types/node": "22.19.19",
     "@types/react": "19.2.14",

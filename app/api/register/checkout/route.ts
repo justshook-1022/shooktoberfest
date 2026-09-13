@@ -4,6 +4,32 @@ import { getStripeClient } from "../../../../lib/stripe";
 import { getAdminClient } from "../../../../lib/supabase/admin";
 import { getServerClient } from "../../../../lib/supabase/server";
 
+type StripeRequestError = {
+  code?: string;
+  raw?: { code?: string; requestId?: string; type?: string };
+  requestId?: string;
+  statusCode?: number;
+  type?: string;
+};
+
+function stripeErrorDetails(error: unknown) {
+  if (!error || typeof error !== "object") {
+    return { type: "unknown", code: "unknown", statusCode: null, requestId: null };
+  }
+  const stripeError = error as StripeRequestError;
+  return {
+    type: stripeError.type ?? stripeError.raw?.type ?? "unknown",
+    code: stripeError.code ?? stripeError.raw?.code ?? "unknown",
+    statusCode: stripeError.statusCode ?? null,
+    requestId: stripeError.requestId ?? stripeError.raw?.requestId ?? null,
+  };
+}
+
+function isMissingStripeResource(error: unknown) {
+  const details = stripeErrorDetails(error);
+  return details.code === "resource_missing" || details.statusCode === 404;
+}
+
 export async function POST(request: Request) {
   const supabase = await getServerClient();
   const { data: auth } = supabase ? await supabase.auth.getUser() : { data: { user: null } };
@@ -16,11 +42,14 @@ export async function POST(request: Request) {
 
   const { data: player, error: playerError } = await admin
     .from("players")
-    .select("id,event_id,auth_user_id,email,payment_status,stripe_session_id")
+    .select("id,event_id,auth_user_id,email,handicap_id,profile_photo_path,payment_status,stripe_session_id")
     .eq("auth_user_id", auth.user.id)
     .maybeSingle();
   if (playerError) return NextResponse.json({ error: "We couldn’t load your registration." }, { status: 500 });
   if (!player) return NextResponse.json({ error: "Finish your golfer details before paying.", url: "/register" }, { status: 409 });
+  if (!player.handicap_id || !player.profile_photo_path) {
+    return NextResponse.json({ error: "Complete your handicap ID and profile photo before paying.", url: "/register" }, { status: 409 });
+  }
   if (player.payment_status === "paid" || player.payment_status === "comped") {
     return NextResponse.json({ url: "/me" });
   }
@@ -35,8 +64,24 @@ export async function POST(request: Request) {
       if (existing.status === "complete" && player.payment_status === "pending") {
         return NextResponse.json({ url: `/register/success?session_id=${encodeURIComponent(existing.id)}` });
       }
-    } catch {
-      return NextResponse.json({ error: "We couldn’t check your prior checkout. Please try again." }, { status: 502 });
+    } catch (error) {
+      if (isMissingStripeResource(error)) {
+        console.info("Stripe checkout session is stale; creating a replacement", {
+          playerId: player.id,
+          priorSessionMode: player.stripe_session_id.startsWith("cs_test_")
+            ? "test"
+            : player.stripe_session_id.startsWith("cs_live_")
+              ? "live"
+              : "unknown",
+          ...stripeErrorDetails(error),
+        });
+      } else {
+        console.error("Stripe checkout session lookup failed", {
+          playerId: player.id,
+          ...stripeErrorDetails(error),
+        });
+        return NextResponse.json({ error: "We couldn’t check your prior checkout. Please try again." }, { status: 502 });
+      }
     }
   }
 
@@ -53,7 +98,7 @@ export async function POST(request: Request) {
         email: player.email,
       },
       cancelPath: "/me",
-      idempotencyKey: `shooktoberfest-resume-${player.id}-${priorSessionId}`,
+      idempotencyKey: `shooktoberfest-resume-${player.id}-${priorSessionId}-standard-checkout-v1`,
     });
 
     let update = admin
@@ -74,7 +119,11 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: message }, { status: 409 });
     }
     return NextResponse.json({ url: session.url });
-  } catch {
+  } catch (error) {
+    console.error("Stripe checkout creation failed", {
+      playerId: player.id,
+      ...stripeErrorDetails(error),
+    });
     return NextResponse.json({ error: "Checkout could not open. Try again." }, { status: 502 });
   }
 }

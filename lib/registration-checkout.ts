@@ -23,6 +23,7 @@ export async function createRegistrationCheckout({
 }) {
   return stripe.checkout.sessions.create({
     mode: "payment",
+    managed_payments: { enabled: false },
     submit_type: "book",
     line_items: [{ price: priceId, quantity: 1 }],
     customer_email: player.email,

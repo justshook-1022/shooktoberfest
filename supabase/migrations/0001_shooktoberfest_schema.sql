@@ -1,7 +1,7 @@
 -- ============================================================
 -- SHOOKTOBERFEST — Supabase schema (v5, audited)
 --
--- 2-person scramble | 32-player field | $200/golfer
+-- 2-person scramble | 32-player field | $207/golfer
 -- Signup = 1 golfer + wife | random A+B draw after signups close
 -- Mt Prospect (Black tees), PAR 70, 6305 yds — scorecard verified
 -- Sequential start, first tee 10:00 AM CT, Fri Oct 2 2026
@@ -25,7 +25,7 @@ create table events (
   name              text not null default 'Shooktoberfest',
   event_date        date not null,
   course_name       text not null default 'Mt Prospect Golf Club',
-  entry_cents       int not null default 20000,  -- $200: golf, $75 pot, food, drink, band
+  entry_cents       int not null default 20700,  -- $207: golf, $75 pot, food, drink, band
   pot_cents         int not null default 7500,   -- per-player contribution to pot
   greenie_cents     int not null default 5000,   -- payout per greenie
   payout_first_pct  numeric not null default 0.60,

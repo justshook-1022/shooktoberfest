@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import { getBrowserClient } from "../lib/supabase/client";
 
@@ -14,5 +15,16 @@ export default function HeaderAccount() {
     return () => data.subscription.unsubscribe();
   }, []);
 
-  return <a className="header-login" href={signedIn ? "/me" : "/login?next=/me"}>{signedIn ? "My profile" : "Log in"}</a>;
+  return (
+    <Link
+      className="header-icon-link header-account"
+      href={signedIn ? "/me" : "/login?next=/me"}
+      aria-label={signedIn ? "My profile" : "Sign in"}
+    >
+      <svg className="account-icon" viewBox="0 0 36 36" aria-hidden="true">
+        <circle cx="18" cy="11" r="6" />
+        <path d="M6.5 31c0-7.1 4.8-11.5 11.5-11.5S29.5 23.9 29.5 31Z" />
+      </svg>
+    </Link>
+  );
 }

@@ -11,10 +11,11 @@ export type Hole = {
 
 export const event = {
   name: "Shooktoberfest",
+  dateISO: "2026-10-02",
   date: "Friday, October 2, 2026",
   course: "Mt Prospect Golf Club",
   address: "600 S See-Gwun Ave, Mount Prospect, IL",
-  entry: 200,
+  entry: 207,
   fieldCap: 32,
   firstTee: "10:00 AM CT",
 };
