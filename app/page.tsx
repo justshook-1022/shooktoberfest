@@ -15,7 +15,7 @@ const included = [
 ];
 
 const timeline = [
-  { when: "9:00 a.m.", title: "Pre-round drinks & snacks", copy: "Come over early, grab something to eat and drink, and meet the field." },
+  { when: "9:00 a.m.", title: "Coffee & donuts", copy: "Meet at Mt Prospect Golf Club at 9:00 a.m. for coffee and donuts." },
   { when: "10:00 a.m.", title: "Golf", copy: "The first group tees off at Mt Prospect Golf Club and the scramble is underway." },
   { when: "5:30 p.m.", title: "Dinner & after-party", copy: "Dinner, drinks, prizes, and live music begin in the Shooks’ backyard." },
 ];
