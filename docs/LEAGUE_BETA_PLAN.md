@@ -31,8 +31,8 @@ Goal: a first outside organizer signs in, creates a league, imports a roster, ge
 - Vercel deployment `dpl_FBfC6fxJcFCuj1tuHyu5KUcCgUT9` is READY; browser confirmed the signed-out landing page renders.
 - Build, typecheck, 33 automated tests, and all 42 protected design file checks passed.
 - Applied the additive migration. Live rollback-only SQL tests passed owner CRUD, cross-owner read/write denial, anonymous denial, ownership reassignment denial, parent ownership constraints, and append-only ledger checks.
-- NOT YET READY FOR EXTERNAL TESTERS: browser sign-in exposed missing preview Supabase environment configuration. No authenticated end-to-end walkthrough has passed yet.
-- Next: enable `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` for this preview branch using the existing project values; do not copy service-role credentials into the preview. Rebuild, verify the exact beta callback URL is permitted by Supabase Auth, then verify Google sign-in and the workflow below.
+- NOT YET READY FOR EXTERNAL TESTERS: browser sign-in initially exposed missing preview Supabase environment configuration. Public URL and publishable key have now been saved for the beta branch only. Rebuild and authenticated end-to-end walkthrough are pending.
+- Public client settings are scoped to this preview branch; no service-role credentials were added. Next: rebuild, verify the exact beta callback URL is permitted by Supabase Auth, then verify Google sign-in and the workflow below.
 - Existing Shooktoberfest production deployment has not been replaced. Capacity for hundreds of simultaneous organizers is a design target, not a verified result.
 
 ## First tester walkthrough
