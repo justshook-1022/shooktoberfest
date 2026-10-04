@@ -27,7 +27,7 @@ export default function PhotosPage() {
             ];
 
             return (
-              <details className="past-event" key={event.year} open={event.year === "2025"}>
+              <details className="past-event" key={event.year} open={event.year === pastEvents[0].year}>
                 <summary>
                   <span className="past-event-year">{event.year}</span>
                   <span className="past-event-summary">
@@ -54,12 +54,12 @@ export default function PhotosPage() {
                   <div className="past-event-photos">
                     {photoSlots.map((photo, index) => photo ? (
                       <figure key={photo.src}>
-                        <div className="past-event-photo-frame">
+                        <div className="past-event-photo-frame" style={{ aspectRatio: photo.aspectRatio }}>
                           <Image
                             src={photo.src}
                             alt={photo.alt}
                             fill
-                            priority={event.year === "2025"}
+                            priority={event.year === pastEvents[0].year}
                             sizes="(max-width: 760px) calc(100vw - 56px), 580px"
                             style={{ objectPosition: photo.position }}
                           />

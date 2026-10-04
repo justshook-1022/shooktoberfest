@@ -1,5 +1,3 @@
-import EventCountdown from "../components/EventCountdown";
-import { RegistrationLink } from "../components/RegistrationStatus";
 import Image from "next/image";
 import Link from "next/link";
 import { SiteHeader } from "../components/SiteHeader";
@@ -27,8 +25,8 @@ export default function Home() {
       <section className="simple-hero">
         <Image
           className="simple-hero-photo"
-          src="/shooktoberfest-past-event.jpg"
-          alt="Friends gathered at a past Shooktoberfest event"
+          src="/past-events/2026-everyone.jpg"
+          alt="The 2026 Shooktoberfest crew"
           fill
           priority
           sizes="100vw"
@@ -36,12 +34,12 @@ export default function Home() {
         <div className="simple-hero-overlay" />
 
         <div className="simple-hero-content">
-          <p className="simple-kicker">Friday, October 2 · 10:00 a.m.</p>
+          <p className="simple-kicker">October 2, 2026 · In the books</p>
           <h1>Shooktoberfest<br /><em>2026</em></h1>
-          <EventCountdown />
+          <p className="simple-kicker">2026 champions<br />Dan Coldegeli &amp; Jim Blisk</p>
           <div className="simple-hero-actions">
-            <RegistrationLink className="simple-signup" />
-            <Link className="simple-login" href="/login">Already registered? Login</Link>
+            <Link className="simple-signup" href="/hall-of-fame">Meet the champions</Link>
+            <Link className="simple-login" href="/photos">2026 photos &amp; past events</Link>
           </div>
         </div>
       </section>
@@ -93,8 +91,8 @@ export default function Home() {
         </dl>
 
         <div className="simple-bottom-cta">
-          <p>Ready to play?</p>
-          <RegistrationLink className="simple-signup" />
+          <p>Here’s to the 2026 champions.</p>
+          <Link className="simple-signup" href="/hall-of-fame">Meet the champions</Link>
         </div>
       </section>
     </main>
