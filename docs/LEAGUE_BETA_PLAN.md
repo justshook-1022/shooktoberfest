@@ -31,8 +31,11 @@ Goal: a first outside organizer signs in, creates a league, imports a roster, ge
 - Vercel deployment `dpl_FBfC6fxJcFCuj1tuHyu5KUcCgUT9` is READY; browser confirmed the signed-out landing page renders.
 - Build, typecheck, 33 automated tests, and all 42 protected design file checks passed.
 - Applied the additive migration. Live rollback-only SQL tests passed owner CRUD, cross-owner read/write denial, anonymous denial, ownership reassignment denial, parent ownership constraints, and append-only ledger checks.
-- NOT YET READY FOR EXTERNAL TESTERS: browser sign-in initially exposed missing preview Supabase environment configuration. Public URL and publishable key have now been saved for the beta branch only. Rebuild and authenticated end-to-end walkthrough are pending.
-- Public client settings are scoped to this preview branch; no service-role credentials were added. Next: rebuild, verify the exact beta callback URL is permitted by Supabase Auth, then verify Google sign-in and the workflow below.
+- READY FOR ONE INVITED ORGANIZER BETA: public client settings configured only for `feat/league-starter-beta-v1`; exact branch callback approved by Justin and saved in Supabase. Google sign-in verified in the browser.
+- Stable tester URL: https://shooktoberfest-git-feat-league-starter-beta-v1-get-shook-llc.vercel.app/leagues
+- Browser walkthrough passed: created Beta QA League; imported eight fictional golfers; generated four weekly rounds from May 3, 2027; drew four two-person teams into two tee groups; published; finalized a net-30 tie with 9.5 points each; verified season standings; recorded fictional $25 dues against $100 owed and verified $75 remaining; created a separate empty second league; reloaded and verified saved data.
+- Test records are clearly named Beta QA League and Beta QA Second League under Justin's account. No invitations were sent and no actual money moved. New organizers start with their own empty workspace.
+- Remaining verification beyond this beta: phone-device walkthrough, external-account OAuth eligibility, attendance edge cases in the browser, recovery/export workflow, and concurrent load testing. Automated isolation and scoring tests cover the core backend rules, but are not a large-scale load certification.
 - Existing Shooktoberfest production deployment has not been replaced. Capacity for hundreds of simultaneous organizers is a design target, not a verified result.
 
 ## First tester walkthrough
