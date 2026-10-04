@@ -70,7 +70,7 @@ export const champions: readonly Champion[] = [
 ];
 
 const playerCounts: Record<Champion["year"], number | null> = {
-  "2026": null,
+  "2026": 32,
   "2025": 26,
   "2024": 16,
   "2023": null,

@@ -33,7 +33,7 @@
     "components/PlayerAvatar.tsx": "82e284ecd91ab7df19c8c8571ca8e19ad3d863a6",
     "components/PopoutMenu.tsx": "9953bcbadc85e33258c3535baa0e876c1338dddb",
     "components/SiteHeader.tsx": "db53b37a9b6d80b39668cf643ceba87dec33d5ff",
-    "lib/history.ts": "a3e3bfe0feff4f95681fe61cef3fd3cc524ff204",
+    "lib/history.ts": "d4296be9cfeb9d1cee9d2eb9e79d97cde96fd500",
     "public/course/mt-prospect-aerial.jpg": "5ecc347d3e9c84a526e3269aec4534c1183dafc0",
     "public/course/mt-prospect-clubhouse.jpg": "60028a8cff82decbe7e424c13a18c67efe258648",
     "public/course/mt-prospect-fairway.jpg": "5cd1a1688b66f3e76e981c4d0a0c3eaad6f9056d",
@@ -77,6 +77,13 @@
       "files": [
         "lib/history.ts",
         "public/hall-of-fame/2022-champions.jpg"
+      ]
+    },
+    {
+      "date": "2026-10-04",
+      "reason": "Justin requested 32 players for the 2026 event.",
+      "files": [
+        "lib/history.ts"
       ]
     }
   ]
