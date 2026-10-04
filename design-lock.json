@@ -33,7 +33,7 @@
     "components/PlayerAvatar.tsx": "82e284ecd91ab7df19c8c8571ca8e19ad3d863a6",
     "components/PopoutMenu.tsx": "9953bcbadc85e33258c3535baa0e876c1338dddb",
     "components/SiteHeader.tsx": "db53b37a9b6d80b39668cf643ceba87dec33d5ff",
-    "lib/history.ts": "2f9a8445168d82020c3719834e4105bcc16e608d",
+    "lib/history.ts": "a3e3bfe0feff4f95681fe61cef3fd3cc524ff204",
     "public/course/mt-prospect-aerial.jpg": "5ecc347d3e9c84a526e3269aec4534c1183dafc0",
     "public/course/mt-prospect-clubhouse.jpg": "60028a8cff82decbe7e424c13a18c67efe258648",
     "public/course/mt-prospect-fairway.jpg": "5cd1a1688b66f3e76e981c4d0a0c3eaad6f9056d",
@@ -55,7 +55,8 @@
     "components/EventCountdown.tsx": "4f85b9481b0b1cda9bc2cf11e12a340e2c97506d",
     "components/EventCountdown.module.css": "ecc898d8b185134a3ae5f4e81c303de8246ddb54",
     "public/hall-of-fame/2026-champions.jpg": "406e0e7ea00fb6c2eae757e209bb403f4d2893b9",
-    "public/past-events/2026-everyone.jpg": "e2139f08047282bbb0ff90a17e8240f4b34740e4"
+    "public/past-events/2026-everyone.jpg": "e2139f08047282bbb0ff90a17e8240f4b34740e4",
+    "public/hall-of-fame/2022-champions.jpg": "8fa2a5eeb6b0a8acd4fb39b670ec898d1573f402"
   },
   "approvedUpdates": [
     {
@@ -67,6 +68,14 @@
         "lib/history.ts",
         "public/hall-of-fame/2026-champions.jpg",
         "public/past-events/2026-everyone.jpg"
+      ]
+    },
+    {
+      "date": "2026-10-04",
+      "reason": "Preserve the separately published 2022 champions photo while keeping the homepage and production functionality unchanged.",
+      "files": [
+        "lib/history.ts",
+        "public/hall-of-fame/2022-champions.jpg"
       ]
     }
   ]

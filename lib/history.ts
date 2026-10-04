@@ -55,6 +55,9 @@ export const champions: readonly Champion[] = [
     winners: ["Bill Shanahan", "Ryan Lannon"],
     titles: "1",
     note: "Tournament champions",
+    image: "/hall-of-fame/2022-champions.jpg",
+    imagePosition: "center 40%",
+    imageAspectRatio: "4 / 5",
   },
   {
     year: "2021",
