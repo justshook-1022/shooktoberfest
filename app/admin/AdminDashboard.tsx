@@ -109,7 +109,7 @@ function Dashboard({ state, action, busy }: { state: AdminState; action: AdminAc
 function Section({ section, state, action, busy }: { section: AdminSection; state: AdminState; action: AdminAction; busy: boolean }) {
   switch (section) {
     case "players": return <PlayersSection state={state} action={action} busy={busy} />;
-    case "draw": return <DrawSection state={state} action={action} busy={busy} />;
+    case "draw": return <DrawSection key={JSON.stringify([state.teams, state.players])} state={state} action={action} busy={busy} />;
     case "tee-times": return <TeeTimesSection state={state} action={action} busy={busy} />;
     case "course": return <CourseSection state={state} action={action} busy={busy} />;
     case "scoring": return <ScoringSection state={state} action={action} busy={busy} />;

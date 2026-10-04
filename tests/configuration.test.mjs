@@ -172,7 +172,7 @@ test("admin UI and service route cover the complete event setup workflow", async
   ]);
   assert.match(dashboard, /scoring_open/);
   assert.match(sections, /Choose your teams/);
-  assert.match(sections, /Save adjusted teams/);
+  assert.match(sections, /Save teams/);
   assert.match(sections, /Save foursome pairings/);
   assert.match(sections, /datetime-local/);
   assert.match(sections, /Remove player/);

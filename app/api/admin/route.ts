@@ -250,7 +250,13 @@ export async function POST(request: Request) {
       }
 
       case "apply-pairings": {
-        if (!Array.isArray(body.pairings) || body.pairings.some((team) => !Array.isArray(team) || team.length < 1 || team.length > 2 || team.some((id) => !hasUuid(id)))) {
+        if (!Array.isArray(body.pairings) || body.pairings.some((row) => {
+          if (!row || typeof row !== "object" || Array.isArray(row)) return true;
+          const team = row as JsonRecord;
+          return (team.teamId !== null && !hasUuid(team.teamId))
+            || (team.aPlayerId !== null && !hasUuid(team.aPlayerId))
+            || (team.bPlayerId !== "" && !hasUuid(team.bPlayerId));
+        })) {
           throw new Error("Pairings are invalid.");
         }
         const { error } = await admin.rpc("admin_apply_team_pairings", {

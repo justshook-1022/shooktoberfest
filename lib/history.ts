@@ -3,18 +3,29 @@ export type HistoryPhoto = {
   alt: string;
   caption: string;
   position?: string;
+  aspectRatio?: string;
 };
 
 export type Champion = {
-  year: "2025" | "2024" | "2023" | "2022" | "2021";
+  year: "2026" | "2025" | "2024" | "2023" | "2022" | "2021";
   winners: readonly [string, string];
   titles: string;
   note: string;
   image?: string;
   imagePosition?: string;
+  imageAspectRatio?: string;
 };
 
 export const champions: readonly Champion[] = [
+  {
+    year: "2026",
+    winners: ["Dan Coldegeli", "Jim Blisk"],
+    titles: "1",
+    note: "2026 champions",
+    image: "/hall-of-fame/2026-champions.jpg",
+    imagePosition: "center 40%",
+    imageAspectRatio: "1 / 1",
+  },
   {
     year: "2025",
     winners: ["Dan Coldagelli", "Jason Grueter"],
@@ -56,6 +67,7 @@ export const champions: readonly Champion[] = [
 ];
 
 const playerCounts: Record<Champion["year"], number | null> = {
+  "2026": null,
   "2025": 26,
   "2024": 16,
   "2023": null,
@@ -64,6 +76,21 @@ const playerCounts: Record<Champion["year"], number | null> = {
 };
 
 const eventPhotos: Record<Champion["year"], readonly HistoryPhoto[]> = {
+  "2026": [
+    {
+      src: "/past-events/2026-everyone.jpg",
+      alt: "Players, families, and friends together at Shooktoberfest 2026",
+      caption: "The 2026 Shooktoberfest crew",
+      position: "center",
+    },
+    {
+      src: "/hall-of-fame/2026-champions.jpg",
+      alt: "2026 Shooktoberfest champions Dan Coldegeli and Jim Blisk wearing their champion hats",
+      caption: "Dan Coldegeli & Jim Blisk · 2026 champions",
+      position: "center 40%",
+      aspectRatio: "1 / 1",
+    },
+  ],
   "2025": [
     {
       src: "/shooktoberfest-past-event.jpg",

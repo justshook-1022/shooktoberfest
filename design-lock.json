@@ -14,13 +14,13 @@
   "files": {
     "app/page.tsx": "31634c377fea8c1435825769734d5324e81b72d9",
     "app/layout.tsx": "c1e0df831658750283f33d7f7760aa81d91433b6",
-    "app/hall-of-fame/page.tsx": "c663109429be377f7f17e38118c72033922b4e5e",
+    "app/hall-of-fame/page.tsx": "385d87e490bd7fbf585a1bf78e38749d2b48d2ed",
     "app/leaderboard/LeaderboardClient.tsx": "f1444645352d6d6e48d7d4b71e482e7e2f49a99c",
     "app/leaderboard/page.tsx": "77d9f6ff396669c6126f97a9ad68ecc524753524",
     "app/login/AuthForm.tsx": "61e7885b6ebe3aeaf1135d4023690457ae44fa82",
     "app/login/page.tsx": "4a5b68925ff0e205b86cc80481a4d0a2662f624a",
     "app/me/page.tsx": "cee1998db4edd511b324c6c6055c9b1c97755edf",
-    "app/photos/page.tsx": "1801d4f5293a493d07b1c19e300066b44d0be8f5",
+    "app/photos/page.tsx": "5f96107ee65e043229483689fa0f1c02a4bf9843",
     "app/register/ProfilePhotoCropper.tsx": "065aff73b4e7b041786f55918aa8924f144be5d1",
     "app/register/RegisterForm.tsx": "566f911c86d2e173e942f4b6bb2375fdf38e1693",
     "app/register/page.tsx": "c7deca49e30daf0e999096096aa30365e5ce17c9",
@@ -33,7 +33,7 @@
     "components/PlayerAvatar.tsx": "82e284ecd91ab7df19c8c8571ca8e19ad3d863a6",
     "components/PopoutMenu.tsx": "9953bcbadc85e33258c3535baa0e876c1338dddb",
     "components/SiteHeader.tsx": "db53b37a9b6d80b39668cf643ceba87dec33d5ff",
-    "lib/history.ts": "74f785b7cd26c6046018adb49884bd45cdde9b52",
+    "lib/history.ts": "2f9a8445168d82020c3719834e4105bcc16e608d",
     "public/course/mt-prospect-aerial.jpg": "5ecc347d3e9c84a526e3269aec4534c1183dafc0",
     "public/course/mt-prospect-clubhouse.jpg": "60028a8cff82decbe7e424c13a18c67efe258648",
     "public/course/mt-prospect-fairway.jpg": "5cd1a1688b66f3e76e981c4d0a0c3eaad6f9056d",
@@ -53,6 +53,21 @@
     "components/RoundControl.module.css": "e6a2e47a960203b30c564ad88be3f843ce57a955",
     "components/RegistrationStatus.tsx": "6b62a893a5dc888a0b88623b85cd0457d5ed4a27",
     "components/EventCountdown.tsx": "4f85b9481b0b1cda9bc2cf11e12a340e2c97506d",
-    "components/EventCountdown.module.css": "ecc898d8b185134a3ae5f4e81c303de8246ddb54"
-  }
+    "components/EventCountdown.module.css": "ecc898d8b185134a3ae5f4e81c303de8246ddb54",
+    "public/hall-of-fame/2026-champions.jpg": "406e0e7ea00fb6c2eae757e209bb403f4d2893b9",
+    "public/past-events/2026-everyone.jpg": "e2139f08047282bbb0ff90a17e8240f4b34740e4"
+  },
+  "approvedUpdates": [
+    {
+      "date": "2026-10-04",
+      "reason": "Justin requested the 2026 champions, cropped and resized winner photo, and 2026 group photo in Past Events.",
+      "files": [
+        "app/hall-of-fame/page.tsx",
+        "app/photos/page.tsx",
+        "lib/history.ts",
+        "public/hall-of-fame/2026-champions.jpg",
+        "public/past-events/2026-everyone.jpg"
+      ]
+    }
+  ]
 }

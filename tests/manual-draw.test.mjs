@@ -2,25 +2,32 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { manualPairingsFromState, scrambleHandicap, validatePairingRows } from "../lib/admin.ts";
 const players = Array.from({ length: 32 }, (_, i) => ({ id: String(i), first_name: "Player", last_name: String(i).padStart(2, "0"), payment_status: "paid", course_handicap: i, handicap_index: i, team_id: null }));
-test("manual draw starts with 16 fixed A players and blank B selections", () => {
+test("new fields have blank A and B selectors, with no handicap assignment", () => {
   const rows = manualPairingsFromState({ players, teams: [] });
   assert.equal(rows.length, 16);
-  assert.deepEqual(rows.map(r => r.aPlayerId), players.slice(0, 16).map(p => p.id));
-  assert.ok(rows.every(r => r.bPlayerId === ""));
+  assert.ok(rows.every(r => r.aPlayerId === null && r.bPlayerId === ""));
   assert.ok(validatePairingRows(rows, players));
-  const complete = rows.map((r, i) => ({ ...r, bPlayerId: String(i + 16) }));
-  assert.equal(validatePairingRows(complete, players), null);
-  complete[0].bPlayerId = complete[1].bPlayerId;
-  assert.ok(validatePairingRows(complete, players));
 });
-test("saved selections restore to the correct A row", () => {
-  const saved = players.map(p => ({ ...p, team_id: ["0", "20"].includes(p.id) ? "team" : null }));
-  const rows = manualPairingsFromState({ players: saved, teams: [{ id: "team" }] });
-  assert.equal(rows[0].bPlayerId, "20");
-  assert.equal(rows[1].bPlayerId, "");
+test("saved teams and flights survive handicap changes and player removal", () => {
+  const saved = [
+    { ...players[0], course_handicap: 50, team_id: "t1", flight: "A" },
+    { ...players[1], course_handicap: 0, team_id: "t1", flight: "B" },
+    { ...players[2], team_id: "t2", flight: "B" },
+  ];
+  const rows = manualPairingsFromState({ players: saved, teams: [{ id: "t1" }, { id: "t2" }] });
+  assert.deepEqual(rows, [
+    { teamId: "t1", aPlayerId: "0", bPlayerId: "1" },
+    { teamId: "t2", aPlayerId: null, bPlayerId: "2" },
+  ]);
+  assert.equal(validatePairingRows(rows, saved), null);
+  assert.equal(manualPairingsFromState({ players: [...saved, players[3]], teams: [{ id: "t1" }, { id: "t2" }] }).length, 2);
 });
-test("odd fields retain a solo row and empty fields stay empty", () => {
-  assert.equal(manualPairingsFromState({ players: players.slice(0, 3), teams: [] })[1].aPlayerId, null);
+test("manual selections allow either flight solo and reject duplicates and ineligible players", () => {
+  const field = players.slice(0, 3);
+  const rows = [{ teamId: "t1", aPlayerId: "0", bPlayerId: "1" }, { teamId: "t2", aPlayerId: "2", bPlayerId: "" }];
+  assert.equal(validatePairingRows(rows, field), null);
+  assert.ok(validatePairingRows([{ ...rows[0], bPlayerId: "0" }, rows[1]], field));
+  assert.ok(validatePairingRows(rows, field.map(p => ({ ...p, payment_status: p.id === "2" ? "unpaid" : "paid" }))));
   assert.deepEqual(manualPairingsFromState({ players: [], teams: [] }), []);
 });
 test("scramble handicap matches whole-number database rounding", () => {

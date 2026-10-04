@@ -114,7 +114,7 @@ export type AdminState = {
 
 export type ShirtSize = "S" | "M" | "L" | "XL" | "2XL" | "3XL";
 export type PaymentStatus = "unpaid" | "pending" | "paid" | "refunded" | "comped";
-export type PairingRow = { aPlayerId: string | null; bPlayerId: string };
+export type PairingRow = { teamId: string | null; aPlayerId: string | null; bPlayerId: string };
 
 export const shirtSizes: ShirtSize[] = ["S", "M", "L", "XL", "2XL", "3XL"];
 export const paymentStatuses: PaymentStatus[] = ["unpaid", "pending", "paid", "refunded", "comped"];
@@ -127,74 +127,24 @@ export function isInDraw(player: AdminPlayer) {
   return player.payment_status === "paid" || player.payment_status === "comped";
 }
 
-export function handicapForDraw(player: AdminPlayer) {
-  return player.course_handicap ?? player.handicap_index ?? 99;
-}
-
-export function splitFlights(players: AdminPlayer[]) {
-  const field = players.filter(isInDraw).sort((left, right) => {
-    return handicapForDraw(left) - handicapForDraw(right)
-      || left.last_name.localeCompare(right.last_name)
-      || left.first_name.localeCompare(right.first_name)
-      || left.id.localeCompare(right.id);
-  });
-  const half = Math.floor(field.length / 2);
-  return { aPlayers: field.slice(0, half), bPlayers: field.slice(half) };
-}
-
-function shuffled<T>(items: T[], random: () => number) {
-  const copy = [...items];
-  for (let index = copy.length - 1; index > 0; index -= 1) {
-    const swapIndex = Math.floor(random() * (index + 1));
-    [copy[index], copy[swapIndex]] = [copy[swapIndex], copy[index]];
-  }
-  return copy;
-}
-
-export function randomPairings(players: AdminPlayer[], random = Math.random): PairingRow[] {
-  const { aPlayers, bPlayers } = splitFlights(players);
-  const aFlight = shuffled(aPlayers, random);
-  const bFlight = shuffled(bPlayers, random);
-  return bFlight.map((bPlayer, index) => ({
-    aPlayerId: aFlight[index]?.id ?? null,
-    bPlayerId: bPlayer.id,
-  }));
-}
-
 export function pairingsFromState(state: AdminState): PairingRow[] {
-  if (!state.teams.length) return [];
-  const { aPlayers, bPlayers } = splitFlights(state.players);
-  const aIds = new Set(aPlayers.map((player) => player.id));
-  const bIds = new Set(bPlayers.map((player) => player.id));
-  const rows: PairingRow[] = [];
-  const used = new Set<string>();
-
-  for (const team of state.teams) {
-    const members = state.players.filter((candidate) => candidate.team_id === team.id);
-    const aPlayer = members.find((candidate) => aIds.has(candidate.id));
-    const bPlayer = members.find((candidate) => bIds.has(candidate.id));
-    if (bPlayer) {
-      rows.push({ aPlayerId: aPlayer?.id ?? null, bPlayerId: bPlayer.id });
-      if (aPlayer) used.add(aPlayer.id);
-      used.add(bPlayer.id);
-    }
-  }
-
-  for (const bPlayer of bPlayers) {
-    if (!used.has(bPlayer.id)) rows.push({ aPlayerId: null, bPlayerId: bPlayer.id });
-  }
-  return rows;
+  return state.teams.map((team) => {
+    const members = state.players.filter((player) => player.team_id === team.id && isInDraw(player));
+    // Saved flight assignments are authoritative, regardless of handicap changes.
+    const aPlayer = members.find((player) => player.flight === "A")
+      ?? members.find((player) => player.flight !== "B");
+    const bPlayer = members.find((player) => player.id !== aPlayer?.id);
+    return { teamId: team.id, aPlayerId: aPlayer?.id ?? null, bPlayerId: bPlayer?.id ?? "" };
+  });
 }
 
 export function manualPairingsFromState(state: AdminState): PairingRow[] {
-  const { aPlayers, bPlayers } = splitFlights(state.players);
-  const saved = pairingsFromState(state);
-  const rows = aPlayers.map((player) => ({
-    aPlayerId: player.id as string | null,
-    bPlayerId: saved.find((row) => row.aPlayerId === player.id)?.bPlayerId ?? "",
-  }));
-  if (bPlayers.length > aPlayers.length) {
-    rows.push({ aPlayerId: null, bPlayerId: saved.find((row) => !row.aPlayerId)?.bPlayerId ?? "" });
+  const rows = pairingsFromState(state);
+  const assigned = new Set(rows.flatMap((row) => [row.aPlayerId, row.bPlayerId]).filter(Boolean));
+  const unassigned = state.players.filter((player) => isInDraw(player) && !assigned.has(player.id)).length;
+  const vacancies = rows.reduce((total, row) => total + Number(!row.aPlayerId) + Number(!row.bPlayerId), 0);
+  for (let index = 0; index < Math.ceil(Math.max(0, unassigned - vacancies) / 2); index += 1) {
+    rows.push({ teamId: null, aPlayerId: null, bPlayerId: "" });
   }
   return rows;
 }
@@ -208,7 +158,7 @@ export function scrambleHandicap(a: number | null, b: number | null) {
 
 export function validatePairingRows(rows: PairingRow[], players: AdminPlayer[]) {
   const expected = players.filter(isInDraw).map((player) => player.id).sort();
-  const submitted = rows.flatMap((row) => row.aPlayerId ? [row.aPlayerId, row.bPlayerId] : [row.bPlayerId]).sort();
+  const submitted = rows.flatMap((row) => [row.aPlayerId, row.bPlayerId]).filter(Boolean).sort();
   if (submitted.length !== expected.length || submitted.some((id, index) => id !== expected[index])) {
     return "Every paid or comped player must appear exactly once.";
   }

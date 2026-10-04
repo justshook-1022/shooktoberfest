@@ -76,7 +76,7 @@ try {
 
   assertQuery(await admin.rpc("admin_apply_team_pairings", {
     p_event_id: eventId,
-    p_pairings: [[eligible[0].id, eligible[3].id], [eligible[1].id, eligible[4].id], [eligible[2].id, eligible[5].id]],
+    p_pairings: [0, 1, 2].map(i => ({ teamId: null, aPlayerId: eligible[i].id, bPlayerId: eligible[i + 3].id })),
   }), "save initial pairings");
 
   let teams = assertQuery(await admin.from("teams").select("id,tee_group_id").eq("event_id", eventId).order("created_at"), "read drawn teams");
@@ -88,7 +88,7 @@ try {
 
   assertQuery(await admin.rpc("admin_apply_team_pairings", {
     p_event_id: eventId,
-    p_pairings: [[eligible[0].id, eligible[4].id], [eligible[1].id, eligible[5].id], [eligible[2].id, eligible[3].id]],
+    p_pairings: [0, 1, 2].map(i => ({ teamId: drawnPlayers.find(p => p.id === eligible[i].id).team_id, aPlayerId: eligible[i].id, bPlayerId: eligible[[4, 5, 3][i]].id })),
   }), "adjust saved pairings");
   teams = assertQuery(await admin.from("teams").select("id,tee_group_id").eq("event_id", eventId).order("created_at"), "read adjusted teams");
 
@@ -192,9 +192,9 @@ try {
 
   const lockedDraw = await admin.rpc("admin_apply_team_pairings", {
     p_event_id: eventId,
-    p_pairings: [[eligible[0].id, eligible[3].id], [eligible[1].id, eligible[4].id], [eligible[2].id, eligible[5].id]],
+    p_pairings: [0, 1, 2].map(i => ({ teamId: teams[i].id, aPlayerId: eligible[i].id, bPlayerId: eligible[i + 3].id })),
   });
-  assert.match(lockedDraw.error?.message ?? "", /cannot be changed after scoring has started/i);
+  assert.match(lockedDraw.error?.message ?? "", /cannot be changed after a round has started/i);
 
   const publicAttempt = await anonymous.rpc("admin_save_scorecard", {
     p_event_id: eventId,

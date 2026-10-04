@@ -28,14 +28,14 @@ export default function HallOfFamePage() {
       <section className="hof-gallery" aria-label="Shooktoberfest champions by year">
         {champions.map((champion) => (
           <article className="hof-card" key={champion.year}>
-            <div className={`hof-photo${champion.image ? " hof-photo-filled" : " hof-photo-placeholder"}`}>
+            <div className={`hof-photo${champion.image ? " hof-photo-filled" : " hof-photo-placeholder"}`} style={{ aspectRatio: champion.imageAspectRatio }}>
               {champion.image ? (
                 <Image
                   className="hof-photo-image"
                   src={champion.image}
-                  alt={`${champion.year} Shooktoberfest champions ${champion.winners.join(" and ")} with their trophies`}
+                  alt={`${champion.year} Shooktoberfest champions ${champion.winners.join(" and ")}`}
                   fill
-                  priority={champion.year === "2025"}
+                  priority={champion.year === champions[0].year}
                   sizes="(max-width: 760px) calc(100vw - 52px), 1040px"
                   style={{ objectPosition: champion.imagePosition }}
                 />

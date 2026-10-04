@@ -13,7 +13,6 @@ import {
   paymentStatuses,
   playerName,
   shirtSizes,
-  splitFlights,
   teeTimeInputValue,
   validatePairingRows,
   type AdminCourseHole,
@@ -151,82 +150,59 @@ export function PlayersSection({ state, action, busy }: SectionProps) {
 
 export function DrawSection({ state, action, busy }: SectionProps) {
   const [rows, setRows] = useState<PairingRow[]>(() => manualPairingsFromState(state));
-  const { aPlayers, bPlayers } = useMemo(() => splitFlights(state.players), [state.players]);
-  const missingHandicaps = state.players.filter((player) => isInDraw(player) && player.course_handicap === null);
-  const validationError = rows.length ? validatePairingRows(rows, state.players) : null;
+  const players = useMemo(() => state.players.filter(isInDraw).sort((a, b) => playerName(a).localeCompare(playerName(b))), [state.players]);
+  const validationError = validatePairingRows(rows, state.players);
+  const locked = busy || state.scores.length > 0 || state.rounds.length > 0;
+  const selectedIds = new Set(rows.flatMap((row) => [row.aPlayerId, row.bPlayerId]).filter(Boolean));
 
-  const locked = busy || state.scores.length > 0;
-  const selectedCount = rows.filter((row) => row.bPlayerId).length;
-
-  function updateRow(index: number, value: string) {
-    setRows((current) => current.map((row, rowIndex) => rowIndex === index ? { ...row, bPlayerId: value } : row));
+  function updateRow(index: number, field: "aPlayerId" | "bPlayerId", value: string) {
+    setRows((current) => current.map((row, rowIndex) => rowIndex === index ? { ...row, [field]: value || (field === "aPlayerId" ? null : "") } : row));
   }
 
   async function saveDraw() {
-    const error = validatePairingRows(rows, state.players);
-    if (error) return;
-    const warning = state.teams.length
-      ? "Save these adjusted pairings? Existing team and tee-group assignments will be replaced."
-      : "Save these selected teams? You can still adjust partners afterward, before scoring starts.";
-    if (!window.confirm(warning)) return;
-    await action({
-      action: "apply-pairings",
-      pairings: rows.map((row) => row.aPlayerId ? [row.aPlayerId, row.bPlayerId] : [row.bPlayerId]),
-    }, "Team pairings were saved.");
+    if (validatePairingRows(rows, state.players)) return;
+    if (!window.confirm("Save these player selections? Existing team IDs and tee times will stay in place.")) return;
+    await action({ action: "apply-pairings", pairings: rows.filter((row) => row.teamId || row.aPlayerId || row.bPlayerId) }, "Team pairings were saved. Tee times were preserved.");
   }
 
   return (
     <div className="admin-stack draw-panel-wide">
-      {state.event.signups_open ? <div className="draw-warning"><strong>Registration is still open.</strong><p>Close it on the dashboard before you treat the draw as final.</p></div> : null}
-      {missingHandicaps.length ? <div className="draw-warning"><strong>{missingHandicaps.length} course handicap{missingHandicaps.length === 1 ? " is" : "s are"} missing.</strong><p>{missingHandicaps.map(playerName).join(", ")} will be ranked using handicap index, then 99 if both values are blank.</p></div> : null}
-      {state.scores.length ? <div className="admin-blocker"><strong>Scoring has started.</strong><p>Pairings are locked because changing them would attach recorded scores to different players.</p></div> : null}
-
-      <section className="draw-b-roster" aria-labelledby="b-flight-heading">
-        <div><p className="eyebrow">Random draw reference</p><h2 id="b-flight-heading">B flight · numbered players</h2><p>Draw a number yourself, then choose that player beside an A-flight player below.</p></div>
-        <ol>{bPlayers.map((player, index) => <li key={player.id}><span className="draw-ball">{index + 1}</span><strong>{playerName(player)}</strong></li>)}</ol>
-        {!bPlayers.length ? <p>No eligible players yet. Paid and comped players enter the draw.</p> : null}
-      </section>
-
+      {locked && !busy ? <div className="admin-blocker"><strong>A round has started.</strong><p>Pairings are locked to protect the players’ scorecards.</p></div> : null}
       <div className="admin-toolbar">
-        <div><strong>Choose your teams</strong><span>{selectedCount} of {rows.length} B players selected · Save when all teams are ready.</span></div>
+        <div><strong>Choose your teams</strong><span>{selectedIds.size} of {players.length} players selected. Saved teams match the tee sheet.</span></div>
         <span>Scramble HCP = 35% of lower + 15% of higher course handicap, rounded.</span>
       </div>
-      {bPlayers.length !== aPlayers.length ? <p className="draw-warning">The field has an odd number of players. The final row is a B-flight solo team.</p> : null}
-
-      {rows.length ? (
-        <>
-          <div className="draw-table-scroll" role="region" aria-label="Team selection spreadsheet">
-            <table className="draw-table">
-              <thead><tr><th scope="col">A flight player name</th><th scope="col">A flight handicap</th><th scope="col">B flight player</th><th scope="col">B flight handicap</th><th scope="col">2-man scramble handicap</th></tr></thead>
-              <tbody>{rows.map((row, index) => {
-                const aPlayer = playerById(state, row.aPlayerId);
-                const bPlayer = playerById(state, row.bPlayerId);
-                const handicap = scrambleHandicap(aPlayer?.course_handicap ?? null, bPlayer?.course_handicap ?? null);
-                return <tr key={row.aPlayerId ?? "solo"}>
-                  <th scope="row">{aPlayer ? playerName(aPlayer) : "Solo B player"}</th>
-                  <td>{aPlayer?.course_handicap ?? "—"}</td>
-                  <td><select aria-label={`B flight partner for ${aPlayer ? playerName(aPlayer) : "solo team"}`} value={row.bPlayerId} disabled={locked} onChange={(event) => updateRow(index, event.target.value)}>
-                    <option value="">Choose B player…</option>
-                    {bPlayers.map((player, number) => <option key={player.id} value={player.id} disabled={rows.some((other, otherIndex) => otherIndex !== index && other.bPlayerId === player.id)}>{number + 1}. {playerName(player)}{rows.some((other, otherIndex) => otherIndex !== index && other.bPlayerId === player.id) ? " (selected)" : ""}</option>)}
-                  </select></td>
-                  <td aria-live="polite">{bPlayer?.course_handicap ?? "—"}</td>
-                  <td className="draw-team-handicap" aria-live="polite">{handicap ?? "—"}</td>
-                </tr>;
-              })}</tbody>
-            </table>
-          </div>
-          <p className="draw-table-note">Handicaps populate as you choose players. Missing course handicaps display as —; enter them on the Players page to calculate the scramble handicap. To swap partners, clear one selection first.</p>
-          {selectedCount === rows.length && validationError ? <p className="form-error" role="alert">{validationError}</p> : null}
-          <div><button className="button button-primary" type="button" disabled={locked || Boolean(validationError)} onClick={() => void saveDraw()}>{busy ? "Saving…" : state.teams.length ? "Save adjusted teams" : "Save teams"}</button></div>
-        </>
-      ) : null}
-
-      {state.teams.length ? (
-        <section className="admin-next-step">
-          <div><p className="eyebrow">Next step</p><h3>Build the foursomes.</h3><p>Randomly put two teams in each tee group, then fine-tune the group pairings on the tee-times page.</p></div>
-          <button className="button button-primary" type="button" disabled={busy} onClick={() => void action({ action: "assign-tee-groups" }, "Teams were randomly assigned to tee groups.")}>Randomly assign tee groups</button>
-        </section>
-      ) : null}
+      <div className="draw-table-scroll" role="region" aria-label="Team selection spreadsheet">
+        <table className="draw-table">
+          <thead><tr><th scope="col">Team / tee time</th><th scope="col">A flight player</th><th scope="col">A flight handicap</th><th scope="col">B flight player</th><th scope="col">B flight handicap</th><th scope="col">2-man scramble handicap</th></tr></thead>
+          <tbody>{rows.map((row, index) => {
+            const aPlayer = playerById(state, row.aPlayerId);
+            const bPlayer = playerById(state, row.bPlayerId);
+            const team = state.teams.find((candidate) => candidate.id === row.teamId);
+            const teeGroup = state.teeGroups.find((group) => group.id === team?.tee_group_id);
+            const handicap = scrambleHandicap(aPlayer?.course_handicap ?? null, bPlayer?.course_handicap ?? null);
+            function selector(field: "aPlayerId" | "bPlayerId", flight: string) {
+              return <select aria-label={`${flight} flight player for team ${index + 1}`} value={row[field] ?? ""} disabled={locked} onChange={(event) => updateRow(index, field, event.target.value)}>
+                <option value="">Choose {flight} player…</option>
+                {players.map((player) => <option key={player.id} value={player.id} disabled={selectedIds.has(player.id) && row[field] !== player.id}>{playerName(player)}</option>)}
+              </select>;
+            }
+            return <tr key={row.teamId ?? `new-${index}`}>
+              <th scope="row">{team?.name || `Team ${index + 1}`}<br />{formatTeeTime(teeGroup?.tee_time ?? null)}</th>
+              <td>{selector("aPlayerId", "A")}</td><td>{aPlayer?.course_handicap ?? "—"}</td>
+              <td>{selector("bPlayerId", "B")}</td><td>{bPlayer?.course_handicap ?? "—"}</td>
+              <td className="draw-team-handicap" aria-live="polite">{handicap ?? "—"}</td>
+            </tr>;
+          })}</tbody>
+        </table>
+      </div>
+      <p className="draw-table-note">Choose either flight manually. Handicaps never change player selections. Leave a slot blank while a replacement is pending; every paid or comped player must be selected once. To swap players, clear a selection first. Missing handicaps display as —.</p>
+      {validationError ? <p role="status">{validationError}</p> : null}
+      <div className="admin-toolbar">
+        <button className="button button-primary" type="button" disabled={locked || Boolean(validationError)} onClick={() => void saveDraw()}>{busy ? "Saving…" : "Save teams"}</button>
+        <button className="button" type="button" disabled={locked} onClick={() => setRows((current) => [...current, { teamId: null, aPlayerId: null, bPlayerId: "" }])}>Add team</button>
+        <Link href="/admin/tee-times">Manage tee times →</Link>
+      </div>
     </div>
   );
 }
